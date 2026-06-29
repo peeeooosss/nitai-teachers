@@ -1,6 +1,5 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-import crypto from "crypto";
 
 export const createShareLink = mutation({
   args: { contentId: v.id("generatedContent") },
@@ -22,7 +21,7 @@ export const createShareLink = mutation({
       throw new Error("Not found or not authorized");
     }
 
-    const token = crypto.randomBytes(24).toString("hex");
+    const token = crypto.randomUUID().replace(/-/g, "") + Math.random().toString(36).substring(2, 10);
 
     await ctx.db.patch(args.contentId, { shareToken: token });
 

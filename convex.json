@@ -2,12 +2,5 @@
   "project": "nitai-teachers",
   "team": "nitai",
   "prodUrl": "",
-  "functions": "convex/",
-  "authInfo": [
-    {
-      "domain": "https://auth.hercules.app",
-      "applicationID": "nitai-teachers",
-      "type": "oidc"
-    }
-  ]
+  "functions": "convex/"
 }
