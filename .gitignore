@@ -10,8 +10,10 @@ yarn-debug.log*
 yarn-error.log*
 
 # Convex
-convex/_generated/
 convex/.cache/
+
+# Build info
+*.tsbuildinfo
 
 # IDE
 .vscode/

@@ -1,0 +1,382 @@
+import {
+  BookOpen,
+  Brain,
+  ClipboardList,
+  FileText,
+  GraduationCap,
+  type LucideIcon,
+  MessageSquare,
+  Notebook,
+  Pen,
+  Presentation,
+  ScrollText,
+  Search,
+  Users,
+  BookMarked,
+} from "lucide-react";
+
+export type ToolField = {
+  name: string;
+  label: string;
+  type: "text" | "textarea" | "number" | "select";
+  placeholder?: string;
+  options?: { label: string; value: string }[];
+  required?: boolean;
+};
+
+export type ToolCategory = "Planning" | "Assessment" | "Content" | "Research";
+
+export type ToolConfig = {
+  id: string;
+  title: string;
+  description: string;
+  category: ToolCategory;
+  icon: LucideIcon;
+  color: string;
+  bg: string;
+  border: string;
+  popular?: boolean;
+  isNew?: boolean;
+  fields: ToolField[];
+  systemPrompt: string;
+  userPrompt: string;
+};
+
+export const ALL_TOOLS: ToolConfig[] = [
+  {
+    id: "lesson-planner",
+    title: "Lesson Planner",
+    description: "Generate comprehensive lesson plans with objectives, activities, and assessments.",
+    category: "Planning",
+    icon: BookOpen,
+    color: "from-blue-500 to-violet-500",
+    bg: "bg-blue-50 dark:bg-blue-950/30",
+    border: "border-blue-200 dark:border-blue-800",
+    popular: true,
+    fields: [
+      { name: "topic", label: "Topic", type: "text", placeholder: "e.g. Photosynthesis", required: true },
+      { name: "gradeLevel", label: "Grade Level", type: "text", placeholder: "e.g. Grade 7", required: true },
+      { name: "duration", label: "Duration", type: "text", placeholder: "e.g. 45 minutes", required: true },
+      { name: "focus", label: "Focus Area", type: "select", options: [
+        { label: "General", value: "general" },
+        { label: "STEM", value: "stem" },
+        { label: "Literacy", value: "literacy" },
+        { label: "Arts", value: "arts" },
+        { label: "SEL", value: "sel" },
+      ]},
+    ],
+    systemPrompt: "You are an expert lesson plan creator. Create detailed, engaging lesson plans for teachers. Include learning objectives, materials needed, procedure (opening, main activities, closing), assessment strategies, and differentiation suggestions.",
+    userPrompt: "Create a lesson plan for {topic} at {gradeLevel} level lasting {duration}. Focus area: {focus}.",
+  },
+  {
+    id: "quiz-generator",
+    title: "Quiz Generator",
+    description: "Create quizzes with multiple question types and difficulty levels.",
+    category: "Assessment",
+    icon: ClipboardList,
+    color: "from-emerald-500 to-teal-500",
+    bg: "bg-emerald-50 dark:bg-emerald-950/30",
+    border: "border-emerald-200 dark:border-emerald-800",
+    popular: true,
+    fields: [
+      { name: "topic", label: "Topic", type: "text", placeholder: "e.g. World War II", required: true },
+      { name: "gradeLevel", label: "Grade Level", type: "text", placeholder: "e.g. High School", required: true },
+      { name: "numQuestions", label: "Number of Questions", type: "number", placeholder: "10" },
+      { name: "difficulty", label: "Difficulty", type: "select", options: [
+        { label: "Easy", value: "easy" },
+        { label: "Medium", value: "medium" },
+        { label: "Hard", value: "hard" },
+      ]},
+    ],
+    systemPrompt: "You are a quiz creation expert. Generate engaging, age-appropriate quizzes. Include a mix of multiple choice, true/false, and short answer questions. Provide answer keys with explanations.",
+    userPrompt: "Create a {difficulty} quiz with {numQuestions} questions about {topic} for {gradeLevel}. Include answer key.",
+  },
+  {
+    id: "assignment-creator",
+    title: "Assignment Creator",
+    description: "Design engaging assignments with clear instructions and rubrics.",
+    category: "Assessment",
+    icon: Pen,
+    color: "from-orange-500 to-rose-500",
+    bg: "bg-orange-50 dark:bg-orange-950/30",
+    border: "border-orange-200 dark:border-orange-800",
+    fields: [
+      { name: "topic", label: "Topic", type: "text", placeholder: "e.g. Essay on Climate Change", required: true },
+      { name: "gradeLevel", label: "Grade Level", type: "text", placeholder: "e.g. Grade 10", required: true },
+      { name: "type", label: "Assignment Type", type: "select", options: [
+        { label: "Essay", value: "essay" },
+        { label: "Project", value: "project" },
+        { label: "Worksheet", value: "worksheet" },
+        { label: "Presentation", value: "presentation" },
+      ]},
+    ],
+    systemPrompt: "You are an assignment design expert. Create clear, well-structured assignments with learning objectives, detailed instructions, submission guidelines, and a comprehensive grading rubric.",
+    userPrompt: "Design a {type} assignment on {topic} for {gradeLevel}. Include instructions and a rubric.",
+  },
+  {
+    id: "course-creator",
+    title: "Course Creator",
+    description: "Plan entire courses with modules, topics, and learning outcomes.",
+    category: "Planning",
+    icon: GraduationCap,
+    color: "from-purple-500 to-pink-500",
+    bg: "bg-purple-50 dark:bg-purple-950/30",
+    border: "border-purple-200 dark:border-purple-800",
+    popular: true,
+    fields: [
+      { name: "courseName", label: "Course Name", type: "text", placeholder: "e.g. Introduction to Biology", required: true },
+      { name: "duration", label: "Duration", type: "text", placeholder: "e.g. 12 weeks", required: true },
+      { name: "audience", label: "Target Audience", type: "text", placeholder: "e.g. College freshmen" },
+    ],
+    systemPrompt: "You are a curriculum design expert. Create comprehensive course plans with module breakdowns, weekly topics, learning objectives, assessment methods, and recommended resources.",
+    userPrompt: "Design a {duration} course plan for '{courseName}' targeting {audience}. Include modules, objectives, and assessments.",
+  },
+  {
+    id: "book-writing",
+    title: "Book Writing",
+    description: "Outline and write educational books or textbooks.",
+    category: "Content",
+    icon: BookMarked,
+    color: "from-indigo-500 to-blue-500",
+    bg: "bg-indigo-50 dark:bg-indigo-950/30",
+    border: "border-indigo-200 dark:border-indigo-800",
+    fields: [
+      { name: "title", label: "Book Title", type: "text", placeholder: "e.g. The History of Mathematics", required: true },
+      { name: "gradeLevel", label: "Target Grade", type: "text", placeholder: "e.g. Middle School" },
+      { name: "chapters", label: "Number of Chapters", type: "number", placeholder: "8" },
+    ],
+    systemPrompt: "You are an educational book author. Create well-structured book outlines and content with chapters, sections, key concepts, review questions, and activities appropriate for the target audience.",
+    userPrompt: "Create a {chapters}-chapter outline and content for a book titled '{title}' for {gradeLevel}.",
+  },
+  {
+    id: "presentations",
+    title: "Presentations",
+    description: "Create slide deck outlines and speaker notes for any topic.",
+    category: "Content",
+    icon: Presentation,
+    color: "from-cyan-500 to-blue-500",
+    bg: "bg-cyan-50 dark:bg-cyan-950/30",
+    border: "border-cyan-200 dark:border-cyan-800",
+    fields: [
+      { name: "topic", label: "Topic", type: "text", placeholder: "e.g. Solar System", required: true },
+      { name: "slides", label: "Number of Slides", type: "number", placeholder: "10" },
+      { name: "audience", label: "Audience", type: "text", placeholder: "e.g. Elementary students" },
+    ],
+    systemPrompt: "You are a presentation design expert. Create engaging slide deck outlines with slide titles, bullet points, visual suggestions, and detailed speaker notes.",
+    userPrompt: "Create a {slides}-slide presentation outline on '{topic}' for {audience}. Include speaker notes.",
+  },
+  {
+    id: "worksheet-generator",
+    title: "Worksheet Generator",
+    description: "Generate practice worksheets with exercises and answer keys.",
+    category: "Assessment",
+    icon: FileText,
+    color: "from-green-500 to-emerald-500",
+    bg: "bg-green-50 dark:bg-green-950/30",
+    border: "border-green-200 dark:border-green-800",
+    fields: [
+      { name: "topic", label: "Topic", type: "text", placeholder: "e.g. Fractions", required: true },
+      { name: "gradeLevel", label: "Grade Level", type: "text", placeholder: "e.g. Grade 5" },
+      { name: "questionCount", label: "Number of Questions", type: "number", placeholder: "15" },
+    ],
+    systemPrompt: "You are a worksheet creation expert. Generate clear, well-organized practice worksheets with a variety of question types and a complete answer key.",
+    userPrompt: "Create a worksheet on {topic} for {gradeLevel} with {questionCount} questions. Include answer key.",
+  },
+  {
+    id: "writing-prompts",
+    title: "Writing Prompts",
+    description: "Generate creative and expository writing prompts for students.",
+    category: "Content",
+    icon: Pen,
+    color: "from-pink-500 to-rose-500",
+    bg: "bg-pink-50 dark:bg-pink-950/30",
+    border: "border-pink-200 dark:border-pink-800",
+    fields: [
+      { name: "gradeLevel", label: "Grade Level", type: "text", placeholder: "e.g. Grade 8" },
+      { name: "genre", label: "Genre", type: "select", options: [
+        { label: "Narrative", value: "narrative" },
+        { label: "Persuasive", value: "persuasive" },
+        { label: "Expository", value: "expository" },
+        { label: "Descriptive", value: "descriptive" },
+      ]},
+      { name: "count", label: "Number of Prompts", type: "number", placeholder: "5" },
+    ],
+    systemPrompt: "You are a creative writing teacher. Generate engaging, age-appropriate writing prompts that inspire creativity and critical thinking.",
+    userPrompt: "Create {count} {genre} writing prompts for {gradeLevel} students.",
+  },
+  {
+    id: "flashcards",
+    title: "Flashcards",
+    description: "Create printable flashcards for any subject or topic.",
+    category: "Content",
+    icon: Notebook,
+    color: "from-yellow-500 to-orange-500",
+    bg: "bg-yellow-50 dark:bg-yellow-950/30",
+    border: "border-yellow-200 dark:border-yellow-800",
+    fields: [
+      { name: "topic", label: "Topic", type: "text", placeholder: "e.g. Spanish Vocabulary", required: true },
+      { name: "count", label: "Number of Cards", type: "number", placeholder: "20" },
+      { name: "gradeLevel", label: "Grade Level", type: "text", placeholder: "e.g. All levels" },
+    ],
+    systemPrompt: "You are a study aid creator. Generate well-organized flashcards with clear terms/questions on one side and definitions/answers on the other.",
+    userPrompt: "Create {count} flashcards on {topic} for {gradeLevel}. Format as term-definition pairs.",
+  },
+  {
+    id: "discussion-topics",
+    title: "Discussion Topics",
+    description: "Generate thought-provoking discussion questions for classroom debates.",
+    category: "Planning",
+    icon: MessageSquare,
+    color: "from-teal-500 to-cyan-500",
+    bg: "bg-teal-50 dark:bg-teal-950/30",
+    border: "border-teal-200 dark:border-teal-800",
+    fields: [
+      { name: "topic", label: "Topic", type: "text", placeholder: "e.g. Ethics of AI", required: true },
+      { name: "gradeLevel", label: "Grade Level", type: "text", placeholder: "e.g. High School" },
+      { name: "count", label: "Number of Questions", type: "number", placeholder: "8" },
+    ],
+    systemPrompt: "You are a discussion facilitator. Create thought-provoking, open-ended discussion questions that encourage critical thinking, debate, and diverse perspectives.",
+    userPrompt: "Generate {count} discussion questions about {topic} for {gradeLevel} students.",
+  },
+  {
+    id: "rubric-generator",
+    title: "Rubric Generator",
+    description: "Build detailed grading rubrics with criteria and performance levels.",
+    category: "Assessment",
+    icon: ClipboardList,
+    color: "from-violet-500 to-purple-500",
+    bg: "bg-violet-50 dark:bg-violet-950/30",
+    border: "border-violet-200 dark:border-violet-800",
+    fields: [
+      { name: "assignment", label: "Assignment Description", type: "textarea", placeholder: "Describe the assignment being graded", required: true },
+      { name: "criteria", label: "Key Criteria (comma separated)", type: "text", placeholder: "e.g. Content, Organization, Grammar" },
+      { name: "levels", label: "Performance Levels", type: "select", options: [
+        { label: "3 levels", value: "3" },
+        { label: "4 levels", value: "4" },
+        { label: "5 levels", value: "5" },
+      ]},
+    ],
+    systemPrompt: "You are a grading rubric expert. Create detailed, fair rubrics with clear criteria descriptions for each performance level.",
+    userPrompt: "Create a {levels}-level rubric for this assignment: {assignment}. Criteria: {criteria}.",
+  },
+  {
+    id: "report-card-comments",
+    title: "Report Card Comments",
+    description: "Generate personalized report card comments for students.",
+    category: "Assessment",
+    icon: ScrollText,
+    color: "from-red-500 to-pink-500",
+    bg: "bg-red-50 dark:bg-red-950/30",
+    border: "border-red-200 dark:border-red-800",
+    fields: [
+      { name: "subject", label: "Subject", type: "text", placeholder: "e.g. Mathematics", required: true },
+      { name: "performance", label: "Performance", type: "select", options: [
+        { label: "Excellent", value: "excellent" },
+        { label: "Good", value: "good" },
+        { label: "Average", value: "average" },
+        { label: "Needs Improvement", value: "needs-improvement" },
+      ]},
+      { name: "gender", label: "Student", type: "select", options: [
+        { label: "Male", value: "male" },
+        { label: "Female", value: "female" },
+      ]},
+    ],
+    systemPrompt: "You are a teacher writing report card comments. Write personalized, constructive comments that highlight strengths and areas for growth. Be specific and encouraging.",
+    userPrompt: "Write a report card comment for a {gender} student in {subject} whose performance is {performance}.",
+  },
+  {
+    id: "lesson-notes",
+    title: "Lesson Notes",
+    description: "Create structured lesson notes and teaching guides.",
+    category: "Planning",
+    icon: Notebook,
+    color: "from-sky-500 to-indigo-500",
+    bg: "bg-sky-50 dark:bg-sky-950/30",
+    border: "border-sky-200 dark:border-sky-800",
+    fields: [
+      { name: "topic", label: "Topic", type: "text", placeholder: "e.g. Cell Division", required: true },
+      { name: "gradeLevel", label: "Grade Level", type: "text", placeholder: "e.g. Grade 9" },
+    ],
+    systemPrompt: "You are an experienced teacher creating lesson notes. Structure notes with key concepts, explanations, examples, diagrams (described), and summary points.",
+    userPrompt: "Create detailed lesson notes on {topic} for {gradeLevel}. Include key concepts, explanations, and summaries.",
+  },
+  {
+    id: "study-guide",
+    title: "Study Guide",
+    description: "Generate comprehensive study guides for tests and exams.",
+    category: "Research",
+    icon: BookMarked,
+    color: "from-blue-500 to-cyan-500",
+    bg: "bg-blue-50 dark:bg-blue-950/30",
+    border: "border-blue-200 dark:border-blue-800",
+    popular: true,
+    fields: [
+      { name: "subject", label: "Subject", type: "text", placeholder: "e.g. Chemistry Final Exam", required: true },
+      { name: "topics", label: "Key Topics (comma separated)", type: "text", placeholder: "e.g. Atomic Structure, Bonding, Reactions" },
+      { name: "gradeLevel", label: "Grade Level", type: "text", placeholder: "e.g. Grade 11" },
+    ],
+    systemPrompt: "You are a study guide expert. Create comprehensive study guides with topic summaries, key formulas/concepts, practice questions, and test-taking tips.",
+    userPrompt: "Create a study guide for {subject} covering {topics} for {gradeLevel}. Include summaries and practice questions.",
+  },
+  {
+    id: "plagiarism-checker",
+    title: "Plagiarism Checker Guide",
+    description: "Get guidance on academic integrity and proper citation methods.",
+    category: "Research",
+    icon: Search,
+    color: "from-gray-500 to-slate-500",
+    bg: "bg-gray-50 dark:bg-gray-950/30",
+    border: "border-gray-200 dark:border-gray-800",
+    fields: [
+      { name: "citationStyle", label: "Citation Style", type: "select", options: [
+        { label: "APA 7th", value: "apa" },
+        { label: "MLA 9th", value: "mla" },
+        { label: "Chicago", value: "chicago" },
+        { label: "Harvard", value: "harvard" },
+      ]},
+      { name: "sourceType", label: "Source Type", type: "text", placeholder: "e.g. Website, Book, Journal" },
+    ],
+    systemPrompt: "You are an academic integrity expert. Provide clear guidance on proper citation, paraphrasing, and avoiding plagiarism for various source types and citation styles.",
+    userPrompt: "Explain how to properly cite a {sourceType} using {citationStyle} style, with examples.",
+  },
+  {
+    id: "brainstorming",
+    title: "Brainstorming",
+    description: "Generate creative ideas for lessons, projects, and activities.",
+    category: "Research",
+    icon: Brain,
+    color: "from-fuchsia-500 to-pink-500",
+    bg: "bg-fuchsia-50 dark:bg-fuchsia-950/30",
+    border: "border-fuchsia-200 dark:border-fuchsia-800",
+    fields: [
+      { name: "topic", label: "Topic or Theme", type: "text", placeholder: "e.g. Teaching Shakespeare", required: true },
+      { name: "count", label: "Number of Ideas", type: "number", placeholder: "10" },
+      { name: "focus", label: "Focus Area", type: "select", options: [
+        { label: "Activities", value: "activities" },
+        { label: "Projects", value: "projects" },
+        { label: "Teaching Strategies", value: "strategies" },
+        { label: "Assessment Ideas", value: "assessment" },
+      ]},
+    ],
+    systemPrompt: "You are a creative brainstorming partner for educators. Generate innovative, practical, and engaging ideas for teaching activities, projects, or strategies.",
+    userPrompt: "Brainstorm {count} creative {focus} ideas for {topic}.",
+  },
+  {
+    id: "substitute-plans",
+    title: "Substitute Plans",
+    description: "Create emergency sub plans that are easy to follow.",
+    category: "Planning",
+    icon: Users,
+    color: "from-amber-500 to-yellow-500",
+    bg: "bg-amber-50 dark:bg-amber-950/30",
+    border: "border-amber-200 dark:border-amber-800",
+    isNew: true,
+    fields: [
+      { name: "subject", label: "Subject", type: "text", placeholder: "e.g. English Language Arts", required: true },
+      { name: "gradeLevel", label: "Grade Level", type: "text", placeholder: "e.g. Grade 6" },
+      { name: "duration", label: "Class Duration", type: "text", placeholder: "e.g. 50 minutes" },
+    ],
+    systemPrompt: "You are creating substitute teacher plans. Design clear, self-contained lessons that any sub can deliver with minimal preparation. Include timing, materials, step-by-step instructions, and extension activities.",
+    userPrompt: "Create substitute teacher plans for {subject} at {gradeLevel} for a {duration} class period.",
+  },
+];
