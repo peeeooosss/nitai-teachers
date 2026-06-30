@@ -11,6 +11,7 @@ import {
   Presentation,
   ScrollText,
   Search,
+  Sparkles,
   Users,
   BookMarked,
 } from "lucide-react";
@@ -40,6 +41,7 @@ export type ToolConfig = {
   fields: ToolField[];
   systemPrompt: string;
   userPrompt: string;
+  downloadFormats: ("txt" | "pdf" | "pptx")[];
 };
 
 export const ALL_TOOLS: ToolConfig[] = [
@@ -67,6 +69,7 @@ export const ALL_TOOLS: ToolConfig[] = [
     ],
     systemPrompt: "You are an expert lesson plan creator. Create detailed, engaging lesson plans for teachers. Include learning objectives, materials needed, procedure (opening, main activities, closing), assessment strategies, and differentiation suggestions.",
     userPrompt: "Create a lesson plan for {topic} at {gradeLevel} level lasting {duration}. Focus area: {focus}.",
+    downloadFormats: ["pdf"],
   },
   {
     id: "quiz-generator",
@@ -90,6 +93,7 @@ export const ALL_TOOLS: ToolConfig[] = [
     ],
     systemPrompt: "You are a quiz creation expert. Generate engaging, age-appropriate quizzes. Include a mix of multiple choice, true/false, and short answer questions. Provide answer keys with explanations.",
     userPrompt: "Create a {difficulty} quiz with {numQuestions} questions about {topic} for {gradeLevel}. Include answer key.",
+    downloadFormats: ["pdf", "txt"],
   },
   {
     id: "assignment-creator",
@@ -112,6 +116,7 @@ export const ALL_TOOLS: ToolConfig[] = [
     ],
     systemPrompt: "You are an assignment design expert. Create clear, well-structured assignments with learning objectives, detailed instructions, submission guidelines, and a comprehensive grading rubric.",
     userPrompt: "Design a {type} assignment on {topic} for {gradeLevel}. Include instructions and a rubric.",
+    downloadFormats: ["pdf", "txt"],
   },
   {
     id: "course-creator",
@@ -130,6 +135,7 @@ export const ALL_TOOLS: ToolConfig[] = [
     ],
     systemPrompt: "You are a curriculum design expert. Create comprehensive course plans with module breakdowns, weekly topics, learning objectives, assessment methods, and recommended resources.",
     userPrompt: "Design a {duration} course plan for '{courseName}' targeting {audience}. Include modules, objectives, and assessments.",
+    downloadFormats: ["pdf"],
   },
   {
     id: "book-writing",
@@ -147,6 +153,7 @@ export const ALL_TOOLS: ToolConfig[] = [
     ],
     systemPrompt: "You are an educational book author. Create well-structured book outlines and content with chapters, sections, key concepts, review questions, and activities appropriate for the target audience.",
     userPrompt: "Create a {chapters}-chapter outline and content for a book titled '{title}' for {gradeLevel}.",
+    downloadFormats: ["pdf"],
   },
   {
     id: "presentations",
@@ -164,6 +171,7 @@ export const ALL_TOOLS: ToolConfig[] = [
     ],
     systemPrompt: "You are a presentation design expert. Create engaging slide deck outlines with slide titles, bullet points, visual suggestions, and detailed speaker notes.",
     userPrompt: "Create a {slides}-slide presentation outline on '{topic}' for {audience}. Include speaker notes.",
+    downloadFormats: ["pptx"],
   },
   {
     id: "worksheet-generator",
@@ -181,6 +189,7 @@ export const ALL_TOOLS: ToolConfig[] = [
     ],
     systemPrompt: "You are a worksheet creation expert. Generate clear, well-organized practice worksheets with a variety of question types and a complete answer key.",
     userPrompt: "Create a worksheet on {topic} for {gradeLevel} with {questionCount} questions. Include answer key.",
+    downloadFormats: ["pdf"],
   },
   {
     id: "writing-prompts",
@@ -203,6 +212,7 @@ export const ALL_TOOLS: ToolConfig[] = [
     ],
     systemPrompt: "You are a creative writing teacher. Generate engaging, age-appropriate writing prompts that inspire creativity and critical thinking.",
     userPrompt: "Create {count} {genre} writing prompts for {gradeLevel} students.",
+    downloadFormats: ["txt"],
   },
   {
     id: "flashcards",
@@ -220,6 +230,7 @@ export const ALL_TOOLS: ToolConfig[] = [
     ],
     systemPrompt: "You are a study aid creator. Generate well-organized flashcards with clear terms/questions on one side and definitions/answers on the other.",
     userPrompt: "Create {count} flashcards on {topic} for {gradeLevel}. Format as term-definition pairs.",
+    downloadFormats: ["pdf"],
   },
   {
     id: "discussion-topics",
@@ -237,6 +248,7 @@ export const ALL_TOOLS: ToolConfig[] = [
     ],
     systemPrompt: "You are a discussion facilitator. Create thought-provoking, open-ended discussion questions that encourage critical thinking, debate, and diverse perspectives.",
     userPrompt: "Generate {count} discussion questions about {topic} for {gradeLevel} students.",
+    downloadFormats: ["txt"],
   },
   {
     id: "rubric-generator",
@@ -258,6 +270,7 @@ export const ALL_TOOLS: ToolConfig[] = [
     ],
     systemPrompt: "You are a grading rubric expert. Create detailed, fair rubrics with clear criteria descriptions for each performance level.",
     userPrompt: "Create a {levels}-level rubric for this assignment: {assignment}. Criteria: {criteria}.",
+    downloadFormats: ["pdf"],
   },
   {
     id: "report-card-comments",
@@ -283,6 +296,7 @@ export const ALL_TOOLS: ToolConfig[] = [
     ],
     systemPrompt: "You are a teacher writing report card comments. Write personalized, constructive comments that highlight strengths and areas for growth. Be specific and encouraging.",
     userPrompt: "Write a report card comment for a {gender} student in {subject} whose performance is {performance}.",
+    downloadFormats: ["pdf", "txt"],
   },
   {
     id: "lesson-notes",
@@ -299,6 +313,7 @@ export const ALL_TOOLS: ToolConfig[] = [
     ],
     systemPrompt: "You are an experienced teacher creating lesson notes. Structure notes with key concepts, explanations, examples, diagrams (described), and summary points.",
     userPrompt: "Create detailed lesson notes on {topic} for {gradeLevel}. Include key concepts, explanations, and summaries.",
+    downloadFormats: ["pdf", "txt"],
   },
   {
     id: "study-guide",
@@ -317,6 +332,7 @@ export const ALL_TOOLS: ToolConfig[] = [
     ],
     systemPrompt: "You are a study guide expert. Create comprehensive study guides with topic summaries, key formulas/concepts, practice questions, and test-taking tips.",
     userPrompt: "Create a study guide for {subject} covering {topics} for {gradeLevel}. Include summaries and practice questions.",
+    downloadFormats: ["pdf"],
   },
   {
     id: "plagiarism-checker",
@@ -338,6 +354,7 @@ export const ALL_TOOLS: ToolConfig[] = [
     ],
     systemPrompt: "You are an academic integrity expert. Provide clear guidance on proper citation, paraphrasing, and avoiding plagiarism for various source types and citation styles.",
     userPrompt: "Explain how to properly cite a {sourceType} using {citationStyle} style, with examples.",
+    downloadFormats: ["txt"],
   },
   {
     id: "brainstorming",
@@ -360,6 +377,7 @@ export const ALL_TOOLS: ToolConfig[] = [
     ],
     systemPrompt: "You are a creative brainstorming partner for educators. Generate innovative, practical, and engaging ideas for teaching activities, projects, or strategies.",
     userPrompt: "Brainstorm {count} creative {focus} ideas for {topic}.",
+    downloadFormats: ["txt"],
   },
   {
     id: "substitute-plans",
@@ -378,5 +396,58 @@ export const ALL_TOOLS: ToolConfig[] = [
     ],
     systemPrompt: "You are creating substitute teacher plans. Design clear, self-contained lessons that any sub can deliver with minimal preparation. Include timing, materials, step-by-step instructions, and extension activities.",
     userPrompt: "Create substitute teacher plans for {subject} at {gradeLevel} for a {duration} class period.",
+    downloadFormats: ["pdf"],
+  },
+  {
+    id: "content-differentiator",
+    title: "Content Differentiator",
+    description: "Adapt educational content for different reading levels and learning needs.",
+    category: "Content",
+    icon: GraduationCap,
+    color: "from-violet-500 to-purple-500",
+    bg: "bg-violet-50 dark:bg-violet-950/30",
+    border: "border-violet-200 dark:border-violet-800",
+    fields: [
+      { name: "content", label: "Content to Differentiate", type: "textarea", placeholder: "Paste the content you want to differentiate...", required: true },
+      { name: "gradeLevel", label: "Target Grade Level", type: "text", placeholder: "e.g. Grade 5", required: true },
+      { name: "readingLevels", label: "Reading Levels", type: "text", placeholder: "e.g. 3rd, 5th, 8th grade (comma separated)" },
+    ],
+    systemPrompt: "You are an expert at differentiating educational content. Adapt material for different reading levels and learning needs while maintaining key concepts.",
+    userPrompt: "Differentiate this content for different reading levels:\n\n{content}\n\nTarget grade: {gradeLevel}\nReading levels: {readingLevels}\n\nProvide the content adapted for each reading level with appropriate vocabulary, sentence complexity, and explanations.",
+    downloadFormats: ["pdf"],
+  },
+  {
+    id: "iep-assistant",
+    title: "IEP Assistant",
+    description: "Draft IEP goals, accommodations, and progress monitoring plans.",
+    category: "Planning",
+    icon: ScrollText,
+    color: "from-pink-500 to-rose-500",
+    bg: "bg-pink-50 dark:bg-pink-950/30",
+    border: "border-pink-200 dark:border-pink-800",
+    fields: [
+      { name: "studentNeeds", label: "Student's Needs and Challenges", type: "textarea", placeholder: "Describe the student's needs, challenges, and current performance...", required: true },
+      { name: "gradeLevel", label: "Grade Level", type: "text", placeholder: "e.g. Grade 4", required: true },
+      { name: "subject", label: "Subject Area", type: "text", placeholder: "e.g. Mathematics, ELA" },
+    ],
+    systemPrompt: "You are an expert IEP writer. Draft appropriate IEP goals, accommodations, and progress monitoring plans.",
+    userPrompt: "Draft IEP goals, accommodations, and progress monitoring plans for a student in {gradeLevel} with the following needs:\n\n{studentNeeds}\n\nSubject area: {subject}.\n\nInclude measurable goals, recommended accommodations, and a progress monitoring plan.",
+    downloadFormats: ["pdf"],
+  },
+  {
+    id: "custom",
+    title: "Custom Activity",
+    description: "Generate any custom educational content with AI assistance.",
+    category: "Planning",
+    icon: Sparkles,
+    color: "from-amber-500 to-yellow-500",
+    bg: "bg-amber-50 dark:bg-amber-950/30",
+    border: "border-amber-200 dark:border-amber-800",
+    fields: [
+      { name: "prompt", label: "Describe what you want to create", type: "textarea", placeholder: "Describe the educational content you want to generate...", required: true },
+    ],
+    systemPrompt: "You are NITAI AI Teacher Assistant, a helpful AI for educators. Generate educational content as requested.",
+    userPrompt: "{prompt}",
+    downloadFormats: ["pdf", "txt"],
   },
 ];

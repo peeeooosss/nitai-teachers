@@ -23,9 +23,12 @@ app.post("/generate", async (c) => {
     return c.json({ output: null, limitReached: true });
   }
 
-  const { prompt, tool } = await c.req.json<{
+  const { prompt, tool, systemPrompt, inputs, toolName } = await c.req.json<{
     prompt: string;
     tool: string;
+    systemPrompt?: string;
+    inputs?: Record<string, string>;
+    toolName?: string;
   }>();
 
   const systemPrompts: Record<string, string> = {
@@ -37,10 +40,12 @@ app.post("/generate", async (c) => {
     "custom": "You are NITAI AI Teacher Assistant, a helpful AI for educators. Generate educational content as requested.",
   };
 
+  const sp = systemPrompt ?? systemPrompts[tool] ?? systemPrompts["custom"];
+
   const completion = await getClient().chat.completions.create({
-    model: "openai/gpt-5-mini",
+    model: "llama-3.3-70b-versatile",
     messages: [
-      { role: "system", content: systemPrompts[tool] ?? systemPrompts["custom"] },
+      { role: "system", content: sp },
       { role: "user", content: prompt },
     ],
     temperature: 0.7,
@@ -58,8 +63,8 @@ app.post("/generate", async (c) => {
     .values({
       userId: user.id,
       toolId: tool,
-      toolName: tool,
-      inputs: { prompt },
+      toolName: toolName ?? tool,
+      inputs: inputs ?? { prompt },
       output,
     })
     .returning();
@@ -73,7 +78,7 @@ app.post("/chat", async (c) => {
   }>();
 
   const completion = await getClient().chat.completions.create({
-    model: "openai/gpt-5-mini",
+    model: "llama-3.3-70b-versatile",
     messages: [
       {
         role: "system",

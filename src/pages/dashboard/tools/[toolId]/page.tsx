@@ -1,3 +1,5 @@
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { AlertCircle, ArrowLeft, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
@@ -7,46 +9,24 @@ import { api } from "@/lib/api";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-
-const tools: Record<string, { name: string; promptPrefix: string; placeholder: string }> = {
-  "lesson-planner": {
-    name: "Lesson Planner",
-    promptPrefix: "Create a detailed lesson plan for: ",
-    placeholder: "Describe the topic, grade level, and duration for your lesson plan...",
-  },
-  "quiz-generator": {
-    name: "Quiz Generator",
-    promptPrefix: "Generate a quiz about: ",
-    placeholder: "Describe the topic, grade level, number of questions, and difficulty...",
-  },
-  "content-differentiator": {
-    name: "Content Differentiator",
-    promptPrefix: "Differentiate this content for different learning levels: ",
-    placeholder: "Paste the content you want to differentiate, and specify the grade levels...",
-  },
-  "rubric-maker": {
-    name: "Rubric Maker",
-    promptPrefix: "Create a rubric for: ",
-    placeholder: "Describe the assignment, criteria, and performance levels for the rubric...",
-  },
-  "iep-assistant": {
-    name: "IEP Assistant",
-    promptPrefix: "Draft IEP goals and accommodations for: ",
-    placeholder: "Describe the student's needs, grade level, and subject areas...",
-  },
-  "custom": {
-    name: "Custom Activity",
-    promptPrefix: "",
-    placeholder: "Describe the educational content you want to generate...",
-  },
-};
+import { ALL_TOOLS } from "@/pages/dashboard/tools/_lib/toolConfig";
+import DownloadActions from "@/components/download-actions";
 
 export default function ToolPage() {
   const toolId = window.location.pathname.split("/").pop()!;
-  const tool = tools[toolId];
+  const tool = ALL_TOOLS.find((t) => t.id === toolId);
 
-  const [input, setInput] = useState("");
+  const [values, setValues] = useState<Record<string, string>>({});
   const [output, setOutput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -67,24 +47,107 @@ export default function ToolPage() {
     );
   }
 
+  const setValue = (name: string, value: string) => {
+    setValues((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const buildPrompt = (): string => {
+    let prompt = tool.userPrompt;
+    for (const field of tool.fields) {
+      const val = values[field.name] || "";
+      prompt = prompt.replace(new RegExp(`\\{${field.name}\\}`, "g"), val);
+    }
+    return prompt;
+  };
+
   const handleGenerate = async () => {
-    if (!input.trim()) return;
+    const missing = tool.fields
+      .filter((f) => f.required && !values[f.name]?.trim())
+      .map((f) => f.label);
+    if (missing.length > 0) {
+      setError(`Please fill in: ${missing.join(", ")}`);
+      return;
+    }
+
     setLoading(true);
     setError("");
     setOutput("");
 
     try {
-      const result = await api.post<{ output: string; contentId: string }>("/api/ai/generate", {
-        prompt: tool.promptPrefix + input,
+      const inputs: Record<string, string> = {};
+      for (const field of tool.fields) {
+        inputs[field.name] = values[field.name] || "";
+      }
+
+      const result = await api.post<{
+        output: string;
+        contentId: string;
+      }>("/api/ai/generate", {
+        prompt: buildPrompt(),
         tool: toolId,
+        systemPrompt: tool.systemPrompt,
+        inputs,
+        toolName: tool.title,
       });
       setOutput(result.output);
       toast.success("Content generated successfully!");
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Something went wrong";
+      const message =
+        err instanceof Error ? err.message : "Something went wrong";
       setError(message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const renderField = (field: (typeof tool.fields)[number]) => {
+    const value = values[field.name] || "";
+
+    switch (field.type) {
+      case "textarea":
+        return (
+          <Textarea
+            id={field.name}
+            placeholder={field.placeholder}
+            value={value}
+            onChange={(e) => setValue(field.name, e.target.value)}
+            className="min-h-[120px] resize-y"
+          />
+        );
+      case "number":
+        return (
+          <Input
+            id={field.name}
+            type="number"
+            placeholder={field.placeholder}
+            value={value}
+            onChange={(e) => setValue(field.name, e.target.value)}
+          />
+        );
+      case "select":
+        return (
+          <Select value={value} onValueChange={(v) => setValue(field.name, v)}>
+            <SelectTrigger>
+              <SelectValue placeholder={field.placeholder || "Select..."} />
+            </SelectTrigger>
+            <SelectContent>
+              {field.options?.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        );
+      default:
+        return (
+          <Input
+            id={field.name}
+            placeholder={field.placeholder}
+            value={value}
+            onChange={(e) => setValue(field.name, e.target.value)}
+          />
+        );
     }
   };
 
@@ -98,7 +161,8 @@ export default function ToolPage() {
           <ArrowLeft className="h-4 w-4" />
           Back to Tools
         </Link>
-        <h1 className="mt-2 text-3xl font-bold">{tool.name}</h1>
+        <h1 className="mt-2 text-3xl font-bold">{tool.title}</h1>
+        <p className="mt-1 text-muted-foreground">{tool.description}</p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
@@ -108,15 +172,20 @@ export default function ToolPage() {
               <CardTitle>Input</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Textarea
-                placeholder={tool.placeholder}
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                className="min-h-[200px] resize-y"
-              />
+              {tool.fields.map((field) => (
+                <div key={field.name} className="space-y-2">
+                  <Label htmlFor={field.name}>
+                    {field.label}
+                    {field.required && (
+                      <span className="ml-1 text-red-500">*</span>
+                    )}
+                  </Label>
+                  {renderField(field)}
+                </div>
+              ))}
               <Button
                 onClick={handleGenerate}
-                disabled={loading || !input.trim()}
+                disabled={loading}
                 className="w-full gap-2"
               >
                 {loading ? (
@@ -142,24 +211,38 @@ export default function ToolPage() {
           )}
         </div>
 
-        <div>
+        <div className="space-y-4">
           <Card>
             <CardHeader>
               <CardTitle>Output</CardTitle>
             </CardHeader>
             <CardContent>
-              {output ? (
-                <div className="prose prose-sm max-w-none whitespace-pre-wrap">
-                  {output}
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center py-16 text-center text-muted-foreground">
-                  <Sparkles className="mb-2 h-8 w-8" />
-                  <p>Your generated content will appear here</p>
-                </div>
-              )}
+              <div
+                id="tool-output"
+                className="prose prose-sm max-w-none dark:prose-invert"
+              >
+                {output ? (
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {output}
+                  </ReactMarkdown>
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-16 text-center text-muted-foreground">
+                    <Sparkles className="mb-2 h-8 w-8" />
+                    <p>Your generated content will appear here</p>
+                  </div>
+                )}
+              </div>
             </CardContent>
           </Card>
+
+          {output && (
+            <DownloadActions
+              output={output}
+              toolTitle={tool.title}
+              formats={tool.downloadFormats}
+              outputElementId="tool-output"
+            />
+          )}
         </div>
       </div>
     </div>

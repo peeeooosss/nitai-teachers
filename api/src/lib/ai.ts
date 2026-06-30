@@ -5,8 +5,9 @@ let _client: OpenAI | null = null;
 export function getClient(): OpenAI {
   if (!_client) {
     _client = new OpenAI({
-      baseURL: "https://ai-gateway.hercules.app/v1",
+      baseURL: "https://api.groq.com/openai/v1",
       apiKey: process.env.OPENAI_API_KEY ?? "sk-placeholder",
+      fetch: globalThis.fetch,
     });
   }
   return _client;
