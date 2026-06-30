@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 
-import { AuthContext, decodeToken, getStoredToken, setAuthToken, type AuthUser } from "@/lib/auth";
+import { setAuthToken } from "@/lib/api";
+import { AuthContext, decodeToken, getStoredToken, type AuthUser } from "@/lib/auth";
 import AuthCallback from "@/pages/auth/Callback";
 import DashboardLayout from "@/pages/dashboard/DashboardLayout";
 import DashboardAnalytics from "@/pages/dashboard/analytics/page";
