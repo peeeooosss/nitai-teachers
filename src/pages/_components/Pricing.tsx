@@ -1,7 +1,7 @@
-import { useAuth, useUser } from "@usehercules/auth/react";
 import { Check, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 
+import { useAuthState } from "@/lib/auth";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,6 +12,19 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+
+const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID ?? "";
+
+function googleSignInUrl() {
+  const redirect = `${window.location.origin}/auth/callback`;
+  const params = new URLSearchParams({
+    client_id: CLIENT_ID,
+    redirect_uri: redirect,
+    response_type: "code",
+    scope: "openid email profile",
+  });
+  return `https://accounts.google.com/o/oauth2/v2/auth?${params}`;
+}
 
 const plans = [
   {
@@ -62,8 +75,7 @@ const plans = [
 ];
 
 export default function Pricing() {
-  const { signinRedirect } = useAuth();
-  const { isAuthenticated } = useUser();
+  const { isAuthenticated } = useAuthState();
 
   return (
     <section id="pricing" className="py-20 sm:py-28">
@@ -128,13 +140,14 @@ export default function Pricing() {
                     </Button>
                   </Link>
                 ) : (
-                  <Button
-                    className="w-full"
-                    variant={plan.popular ? "default" : "outline"}
-                    onClick={() => signinRedirect()}
-                  >
-                    {plan.cta}
-                  </Button>
+                  <a href={googleSignInUrl()} className="w-full">
+                    <Button
+                      className="w-full"
+                      variant={plan.popular ? "default" : "outline"}
+                    >
+                      {plan.cta}
+                    </Button>
+                  </a>
                 )}
               </CardFooter>
             </Card>

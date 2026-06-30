@@ -1,0 +1,31 @@
+{
+  "name": "nitai-api",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "tsx src/index.ts",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "tsx src/db/migrate.ts",
+    "db:push": "drizzle-kit push"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.14.0",
+    "@hono/zod-validator": "^0.4.0",
+    "@neondatabase/serverless": "^1.0.0",
+    "dotenv": "^17.4.2",
+    "drizzle-orm": "^0.40.0",
+    "hono": "^4.7.0",
+    "jose": "^6.0.0",
+    "openai": "^4.92.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "drizzle-kit": "^0.30.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.8.0"
+  }
+}

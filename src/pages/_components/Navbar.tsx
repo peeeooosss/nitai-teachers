@@ -1,13 +1,25 @@
-import { useAuth, useUser } from "@usehercules/auth/react";
 import { LogIn, Menu, Sparkles, X } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
+import { useAuthState } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 
+const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID ?? "";
+
+function googleSignInUrl() {
+  const redirect = `${window.location.origin}/auth/callback`;
+  const params = new URLSearchParams({
+    client_id: CLIENT_ID,
+    redirect_uri: redirect,
+    response_type: "code",
+    scope: "openid email profile",
+  });
+  return `https://accounts.google.com/o/oauth2/v2/auth?${params}`;
+}
+
 export default function Navbar() {
-  const { signinRedirect } = useAuth();
-  const { isAuthenticated } = useUser();
+  const { isAuthenticated } = useAuthState();
   const [open, setOpen] = useState(false);
 
   return (
@@ -37,10 +49,12 @@ export default function Navbar() {
               <Button>Dashboard</Button>
             </Link>
           ) : (
-            <Button onClick={() => signinRedirect()}>
-              <LogIn className="h-4 w-4" />
-              Sign In
-            </Button>
+            <a href={googleSignInUrl()}>
+              <Button>
+                <LogIn className="h-4 w-4" />
+                Sign In
+              </Button>
+            </a>
           )}
         </div>
 
@@ -66,10 +80,12 @@ export default function Navbar() {
                 <Button className="w-full">Dashboard</Button>
               </Link>
             ) : (
-              <Button className="w-full" onClick={() => signinRedirect()}>
-                <LogIn className="h-4 w-4" />
-                Sign In
-              </Button>
+              <a href={googleSignInUrl()} className="w-full" onClick={() => setOpen(false)}>
+                <Button className="w-full">
+                  <LogIn className="h-4 w-4" />
+                  Sign In
+                </Button>
+              </a>
             )}
           </div>
         </div>

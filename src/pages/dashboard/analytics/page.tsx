@@ -1,154 +1,162 @@
-import { useQuery } from "convex/react";
 import {
-  ResponsiveContainer,
-  Tooltip as RechartsTooltip,
-  PieChart,
-  Pie,
-  Cell,
-  Legend,
-} from "recharts";
+  BarChart3,
+  BookOpen,
+  FileText,
+  GraduationCap,
+  Target,
+  TrendingUp,
+} from "lucide-react";
+import { useEffect, useState } from "react";
 
-import { api } from "../../../../convex/_generated/api";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-const COLORS = [
-  "#6366f1",
-  "#8b5cf6",
-  "#a855f7",
-  "#d946ef",
-  "#ec4899",
-  "#f43f5e",
-  "#14b8a6",
-  "#06b6d4",
-  "#3b82f6",
-  "#10b981",
-];
+import { api } from "@/lib/api";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function DashboardAnalytics() {
-  const currentUser = useQuery(api.users.getCurrentUser);
+  const [stats, setStats] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  const usage = currentUser?.monthlyUsage ?? 0;
-  const limit = currentUser?.plan === "free" ? 10 : Infinity;
-  const usageData = [
-    { name: "Used", value: usage },
-    { name: "Remaining", value: Math.max(limit - usage, 0) },
-  ];
+  useEffect(() => {
+    Promise.all([
+      api.get<any>("/api/users/me").catch(() => ({})),
+      api.get<any[]>("/api/content").catch(() => []),
+    ])
+      .then(([userData, contents]) => {
+        const contentByTool: Record<string, number> = {};
+        contents.forEach((c) => {
+          const tool = c.toolName ?? c.tool ?? "unknown";
+          contentByTool[tool] = (contentByTool[tool] ?? 0) + 1;
+        });
+        setStats({
+          totalContent: contents.length,
+          contentByTool,
+          user: userData,
+        });
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <Skeleton className="h-8 w-48" />
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {[1, 2, 3, 4].map((i) => (
+            <Skeleton key={i} className="h-32" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  const toolIcons: Record<string, any> = {
+    "lesson-planner": BookOpen,
+    "quiz-generator": Target,
+    "content-differentiator": GraduationCap,
+    "rubric-maker": FileText,
+  };
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Analytics</h1>
-        <p className="text-muted-foreground">
-          Track your usage and activity.
+        <h1 className="text-3xl font-bold">Analytics</h1>
+        <p className="mt-1 text-muted-foreground">
+          Track your usage and content generation
         </p>
       </div>
 
-      <Tabs defaultValue="usage">
-        <TabsList>
-          <TabsTrigger value="usage">Usage</TabsTrigger>
-          <TabsTrigger value="activity">Activity</TabsTrigger>
-        </TabsList>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Total Content</CardTitle>
+            <BarChart3 className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">{stats?.totalContent ?? 0}</div>
+            <p className="text-xs text-muted-foreground">pieces generated</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Lesson Plans</CardTitle>
+            <BookOpen className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">
+              {stats?.contentByTool?.["lesson-planner"] ?? 0}
+            </div>
+            <p className="text-xs text-muted-foreground">created</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Quizzes</CardTitle>
+            <Target className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">
+              {stats?.contentByTool?.["quiz-generator"] ?? 0}
+            </div>
+            <p className="text-xs text-muted-foreground">created</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">This Month</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">
+              {stats?.totalContent ?? 0}
+            </div>
+            <p className="text-xs text-muted-foreground">items generated</p>
+          </CardContent>
+        </Card>
+      </div>
 
-        <TabsContent value="usage" className="space-y-6">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Monthly Usage</CardTitle>
-                <CardDescription>
-                  {currentUser?.plan === "free"
-                    ? `${usage} of ${limit} generations used`
-                    : "Unlimited plan"}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="h-64">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={usageData}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={60}
-                        outerRadius={100}
-                        paddingAngle={5}
-                        dataKey="value"
-                      >
-                        {usageData.map((_, index) => (
-                          <Cell
-                            key={`cell-${index}`}
-                            fill={COLORS[index % COLORS.length]}
-                          />
-                        ))}
-                      </Pie>
-                      <RechartsTooltip />
-                      <Legend />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Usage Overview</CardTitle>
-                <CardDescription>Your account summary</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between border-b pb-2">
-                  <span className="text-sm text-muted-foreground">Plan</span>
-                  <span className="text-sm font-medium capitalize">
-                    {currentUser?.plan ?? "free"}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between border-b pb-2">
-                  <span className="text-sm text-muted-foreground">
-                    Generations This Month
-                  </span>
-                  <span className="text-sm font-medium">{usage}</span>
-                </div>
-                <div className="flex items-center justify-between border-b pb-2">
-                  <span className="text-sm text-muted-foreground">Limit</span>
-                  <span className="text-sm font-medium">
-                    {currentUser?.plan === "free" ? limit : "Unlimited"}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">
-                    Role
-                  </span>
-                  <span className="text-sm font-medium capitalize">
-                    {currentUser?.role ?? "user"}
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Usage by Tool</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {Object.entries(stats?.contentByTool ?? {}).length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                No data yet. Start using tools to see your usage breakdown.
+              </p>
+            ) : (
+              Object.entries(stats?.contentByTool ?? {}).map(
+                ([tool, count]: [string, any]) => {
+                  const Icon = toolIcons[tool] ?? FileText;
+                  const total = stats?.totalContent ?? 1;
+                  const percentage = Math.round((count / total) * 100);
+                  return (
+                    <div key={tool} className="space-y-1">
+                      <div className="flex items-center justify-between text-sm">
+                        <div className="flex items-center gap-2">
+                          <Icon className="h-4 w-4 text-muted-foreground" />
+                          <span className="capitalize">
+                            {tool.replace(/-/g, " ")}
+                          </span>
+                        </div>
+                        <span className="text-muted-foreground">
+                          {count} ({percentage}%)
+                        </span>
+                      </div>
+                      <div className="h-2 w-full rounded-full bg-muted">
+                        <div
+                          className="h-full rounded-full bg-primary transition-all"
+                          style={{ width: `${percentage}%` }}
+                        />
+                      </div>
+                    </div>
+                  );
+                },
+              )
+            )}
           </div>
-        </TabsContent>
-
-        <TabsContent value="activity">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Coming Soon</CardTitle>
-              <CardDescription>
-                Detailed activity charts and trends will be available in a
-                future update.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-center py-16 text-muted-foreground">
-                <p>Activity tracking is being built.</p>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+        </CardContent>
+      </Card>
     </div>
   );
 }

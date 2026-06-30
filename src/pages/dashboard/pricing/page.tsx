@@ -1,147 +1,136 @@
-import { useMutation } from "convex/react";
-import { Check, Loader2, Sparkles } from "lucide-react";
-import { useState } from "react";
+import { Check, Sparkles } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
-import { api } from "../../../../convex/_generated/api";
-import { Badge } from "@/components/ui/badge";
+import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 
 const plans = [
   {
-    id: "free",
     name: "Free",
     price: "$0",
-    period: "",
-    description: "For trying out NITAI AI",
+    description: "For getting started",
     features: [
-      "10 AI generations per month",
-      "All 17+ tools",
-      "Basic support",
-      "Share links",
+      "50 AI generations per month",
+      "Basic tools access",
+      "Standard output quality",
+      "Email support",
     ],
-    popular: false,
+    priceId: "free",
   },
   {
-    id: "pro",
     name: "Pro",
     price: "$12",
     period: "/month",
     description: "For individual teachers",
     features: [
       "Unlimited AI generations",
-      "All 17+ tools",
+      "All tools & features",
+      "Premium output quality",
       "Priority support",
-      "Share links",
-      "Export to PDF",
       "Advanced analytics",
+      "Content sharing",
     ],
+    priceId: "pro",
     popular: true,
   },
   {
-    id: "school",
     name: "School",
-    price: "$8",
-    period: "/teacher/month",
-    description: "For schools and districts",
+    price: "$49",
+    period: "/month",
+    description: "For schools & districts",
     features: [
       "Everything in Pro",
-      "Bulk user management",
+      "Team accounts (up to 10)",
       "Admin dashboard",
+      "Usage analytics",
       "Dedicated support",
       "Custom integrations",
       "SLA guarantee",
     ],
-    popular: false,
+    priceId: "school",
   },
 ];
 
 export default function PricingPage() {
-  const [loading, setLoading] = useState<string | null>(null);
-  const upgradePlan = useMutation(api.users.upgradePlan);
+  const navigate = useNavigate();
 
-  const handleUpgrade = async (plan: string) => {
-    setLoading(plan);
+  const handleUpgrade = async (priceId: string) => {
+    if (priceId === "free") {
+      toast.info("You're already on the Free plan");
+      return;
+    }
     try {
-      await upgradePlan({ plan });
-      toast.success(`Upgraded to ${plan} plan!`);
+      await api.post("/api/users/upgrade", { plan: priceId });
+      toast.success(`Upgraded to ${priceId} plan!`);
+      navigate("/dashboard");
     } catch {
       toast.error("Failed to upgrade plan");
-    } finally {
-      setLoading(null);
     }
   };
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Plans & Pricing</h1>
-        <p className="text-muted-foreground">
-          Choose the plan that fits your needs.
+    <div className="space-y-8 py-8">
+      <div className="text-center">
+        <h1 className="text-4xl font-bold">Simple, Transparent Pricing</h1>
+        <p className="mt-2 text-lg text-muted-foreground">
+          Choose the plan that works best for you
         </p>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid gap-6 lg:grid-cols-3 mx-auto max-w-5xl">
         {plans.map((plan) => (
           <Card
-            key={plan.id}
+            key={plan.name}
             className={`relative flex flex-col ${
-              plan.popular
-                ? "border-2 border-violet-500 shadow-lg shadow-violet-500/10"
-                : "border-border/50"
+              plan.popular ? "border-primary shadow-lg" : ""
             }`}
           >
             {plan.popular && (
               <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                <Badge className="bg-gradient-to-r from-violet-500 to-blue-500 text-white border-0">
-                  <Sparkles className="h-3 w-3 mr-1" />
+                <span className="inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground">
+                  <Sparkles className="h-3 w-3" />
                   Most Popular
-                </Badge>
+                </span>
               </div>
             )}
+
             <CardHeader>
-              <CardTitle>{plan.name}</CardTitle>
-              <div className="mt-2 flex items-baseline gap-1">
+              <CardTitle className="text-2xl">{plan.name}</CardTitle>
+              <CardDescription>{plan.description}</CardDescription>
+              <div className="mt-4">
                 <span className="text-4xl font-bold">{plan.price}</span>
                 {plan.period && (
-                  <span className="text-sm text-muted-foreground">
-                    {plan.period}
-                  </span>
+                  <span className="text-muted-foreground">{plan.period}</span>
                 )}
               </div>
-              <CardDescription>{plan.description}</CardDescription>
             </CardHeader>
-            <CardContent className="flex-1">
-              <ul className="space-y-3">
-                {plan.features.map((f) => (
-                  <li key={f} className="flex items-center gap-2 text-sm">
-                    <Check className="h-4 w-4 text-emerald-500 shrink-0" />
-                    <span>{f}</span>
+
+            <CardContent className="flex flex-1 flex-col">
+              <ul className="mb-8 flex-1 space-y-3">
+                {plan.features.map((feature) => (
+                  <li key={feature} className="flex items-center gap-2 text-sm">
+                    <Check className="h-4 w-4 text-green-500" />
+                    {feature}
                   </li>
                 ))}
               </ul>
-            </CardContent>
-            <CardFooter>
+
               <Button
-                className="w-full"
                 variant={plan.popular ? "default" : "outline"}
-                onClick={() => handleUpgrade(plan.id)}
-                disabled={loading !== null}
+                className="w-full"
+                onClick={() => handleUpgrade(plan.priceId)}
               >
-                {loading === plan.id ? (
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                ) : null}
-                {plan.id === "free" ? "Current Plan" : `Upgrade to ${plan.name}`}
+                {plan.priceId === "free" ? "Current Plan" : "Upgrade"}
               </Button>
-            </CardFooter>
+            </CardContent>
           </Card>
         ))}
       </div>

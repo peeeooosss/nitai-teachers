@@ -1,24 +1,34 @@
-import { useAuthCallback } from "@usehercules/auth/react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
-import { useMutation } from "convex/react";
-import { api } from "../../../convex/_generated/api";
+import { api, setAuthToken } from "@/lib/api";
 
 export default function AuthCallback() {
   const navigate = useNavigate();
-  const updateCurrentUser = useMutation(api.users.updateCurrentUser);
 
-  useAuthCallback({
-    onSuccess: async () => {
-      try {
-        await updateCurrentUser();
-      } catch {}
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("code");
+    const error = params.get("error");
+
+    if (error || !code) {
+      toast.error("Authentication failed");
       navigate("/", { replace: true });
-    },
-    onNoAuthParams: () => {
-      navigate("/", { replace: true });
-    },
-  });
+      return;
+    }
+
+    api
+      .post<{ token: string }>("/api/auth/google", { code })
+      .then((res) => {
+        setAuthToken(res.token);
+        navigate("/dashboard", { replace: true });
+      })
+      .catch(() => {
+        toast.error("Authentication failed");
+        navigate("/", { replace: true });
+      });
+  }, [navigate]);
 
   return (
     <div className="flex h-screen items-center justify-center">

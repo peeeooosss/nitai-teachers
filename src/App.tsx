@@ -1,6 +1,7 @@
-import { useUser } from "@usehercules/auth/react";
+import { useEffect, useState } from "react";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 
+import { AuthContext, decodeToken, getStoredToken, setAuthToken, type AuthUser } from "@/lib/auth";
 import AuthCallback from "@/pages/auth/Callback";
 import DashboardLayout from "@/pages/dashboard/DashboardLayout";
 import DashboardAnalytics from "@/pages/dashboard/analytics/page";
@@ -16,9 +17,21 @@ import NotFound from "@/pages/NotFound";
 import SharedContentPage from "@/pages/shared/page";
 
 export default function App() {
-  const { isLoading } = useUser();
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  if (isLoading) {
+  useEffect(() => {
+    const token = getStoredToken();
+    if (token) {
+      setAuthToken(token);
+      setUser(decodeToken(token));
+    }
+    setLoading(false);
+  }, []);
+
+  const authState = { user, isAuthenticated: !!user };
+
+  if (loading) {
     return (
       <div className="flex h-screen items-center justify-center">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
@@ -28,22 +41,24 @@ export default function App() {
 
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/auth/callback" element={<AuthCallback />} />
-        <Route path="/shared/:token" element={<SharedContentPage />} />
-        <Route path="/dashboard" element={<DashboardLayout />}>
-          <Route index element={<DashboardHome />} />
-          <Route path="tools" element={<DashboardTools />} />
-          <Route path="tools/:toolId" element={<ToolPage />} />
-          <Route path="history" element={<DashboardHistory />} />
-          <Route path="analytics" element={<DashboardAnalytics />} />
-          <Route path="pricing" element={<PricingPage />} />
-          <Route path="admin" element={<DashboardAdmin />} />
-          <Route path="profile" element={<DashboardProfile />} />
-        </Route>
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+      <AuthContext.Provider value={authState}>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
+          <Route path="/shared/:token" element={<SharedContentPage />} />
+          <Route path="/dashboard" element={<DashboardLayout />}>
+            <Route index element={<DashboardHome />} />
+            <Route path="tools" element={<DashboardTools />} />
+            <Route path="tools/:toolId" element={<ToolPage />} />
+            <Route path="history" element={<DashboardHistory />} />
+            <Route path="analytics" element={<DashboardAnalytics />} />
+            <Route path="pricing" element={<PricingPage />} />
+            <Route path="admin" element={<DashboardAdmin />} />
+            <Route path="profile" element={<DashboardProfile />} />
+          </Route>
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </AuthContext.Provider>
     </Router>
   );
 }

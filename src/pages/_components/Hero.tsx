@@ -1,12 +1,24 @@
-import { useAuth, useUser } from "@usehercules/auth/react";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 
+import { useAuthState } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 
+const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID ?? "";
+
+function googleSignInUrl() {
+  const redirect = `${window.location.origin}/auth/callback`;
+  const params = new URLSearchParams({
+    client_id: CLIENT_ID,
+    redirect_uri: redirect,
+    response_type: "code",
+    scope: "openid email profile",
+  });
+  return `https://accounts.google.com/o/oauth2/v2/auth?${params}`;
+}
+
 export default function Hero() {
-  const { signinRedirect } = useAuth();
-  const { isAuthenticated } = useUser();
+  const { isAuthenticated } = useAuthState();
 
   return (
     <section className="relative overflow-hidden pt-32 pb-20 sm:pt-40 sm:pb-28">
@@ -38,10 +50,12 @@ export default function Hero() {
               </Button>
             </Link>
           ) : (
-            <Button size="lg" className="gap-2" onClick={() => signinRedirect()}>
-              Get Started Free
-              <ArrowRight className="h-4 w-4" />
-            </Button>
+            <a href={googleSignInUrl()}>
+              <Button size="lg" className="gap-2">
+                Get Started Free
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </a>
           )}
         </div>
 

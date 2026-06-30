@@ -1,15 +1,21 @@
-import { useQuery } from "convex/react";
 import { ArrowLeft, Sparkles } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
-import { api } from "../../../convex/_generated/api";
+import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function SharedContentPage() {
   const { token } = useParams();
-  const content = useQuery(api.sharing.getSharedContent, { token: token! });
+  const [content, setContent] = useState<any>(null);
+
+  useEffect(() => {
+    if (token) {
+      api.get<any>(`/api/share/${token}`).then(setContent).catch(() => {});
+    }
+  }, [token]);
 
   if (!content) {
     return (
@@ -38,13 +44,14 @@ export default function SharedContentPage() {
 
         <Card>
           <CardHeader>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+            <div className="mb-2 flex items-center gap-2 text-sm text-muted-foreground">
               <Sparkles className="h-4 w-4 text-violet-500" />
               Generated with NITAI AI
             </div>
             <CardTitle className="text-2xl">{content.toolName}</CardTitle>
             <p className="text-sm text-muted-foreground">
-              Generated on {new Date(content.createdAt).toLocaleDateString()}
+              Generated on{" "}
+              {new Date(content.createdAt).toLocaleDateString()}
             </p>
           </CardHeader>
           <CardContent>
