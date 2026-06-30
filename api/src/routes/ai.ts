@@ -23,13 +23,19 @@ app.post("/generate", async (c) => {
     return c.json({ output: null, limitReached: true });
   }
 
-  const { prompt, tool, systemPrompt, inputs, toolName } = await c.req.json<{
+  const body = await c.req.json<{
     prompt: string;
     tool: string;
     systemPrompt?: string;
     inputs?: Record<string, string>;
     toolName?: string;
   }>();
+
+  const prompt = (body.prompt ?? "").trim().slice(0, 10000);
+  const tool = body.tool;
+  const systemPrompt = body.systemPrompt;
+  const inputs = body.inputs;
+  const toolName = body.toolName;
 
   const systemPrompts: Record<string, string> = {
     "lesson-planner": "You are an expert lesson plan creator. Create detailed, engaging lesson plans with objectives, activities, assessments, and differentiation strategies.",

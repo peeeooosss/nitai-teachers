@@ -16,7 +16,16 @@ app.get("/me", async (c) => {
     where: eq(users.tokenIdentifier, tokenIdentifier),
   });
   if (!user) return c.json({ error: "Not found" }, 404);
-  return c.json(user);
+  return c.json({
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    plan: user.plan,
+    role: user.role,
+    monthlyUsage: user.monthlyUsage,
+    onboarded: user.onboarded,
+    createdAt: user.createdAt,
+  });
 });
 
 app.post("/usage/increment", async (c) => {

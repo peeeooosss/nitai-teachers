@@ -1,8 +1,6 @@
 import { ArrowRight, Sparkles } from "lucide-react";
-import { useState } from "react";
 import { Link } from "react-router-dom";
 
-import { api, setAuthToken } from "@/lib/api";
 import { useAuthState } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 
@@ -21,18 +19,6 @@ function googleSignInUrl() {
 
 export default function Hero() {
   const { isAuthenticated } = useAuthState();
-  const [devLoading, setDevLoading] = useState(false);
-
-  const handleDevLogin = async () => {
-    setDevLoading(true);
-    try {
-      const res = await api.post<{ token: string }>("/api/auth/dev-login");
-      setAuthToken(res.token);
-      window.location.href = "/dashboard";
-    } catch {
-      setDevLoading(false);
-    }
-  };
 
   return (
     <section className="relative overflow-hidden pt-32 pb-20 sm:pt-40 sm:pb-28">
@@ -76,18 +62,6 @@ export default function Hero() {
         <p className="mt-4 text-sm text-muted-foreground">
           Free plan includes 10 AI generations per month. No credit card required.
         </p>
-
-        <div className="mt-6">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleDevLogin}
-            disabled={devLoading}
-            className="text-xs text-muted-foreground/50 hover:text-muted-foreground"
-          >
-            {devLoading ? "Logging in..." : "Dev Login (skip OAuth)"}
-          </Button>
-        </div>
       </div>
     </section>
   );

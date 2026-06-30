@@ -90,51 +90,9 @@ app.post("/google", async (c) => {
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime("7d")
-    .sign(new TextEncoder().encode(process.env.JWT_SECRET ?? "dev-secret-change-me"));
+    .sign(new TextEncoder().encode(process.env.JWT_SECRET!));
 
   return c.json({ token: jwt, user: { email, name } });
-});
-
-app.post("/dev-login", async (c) => {
-  const devEmail = "dev@nitai.test";
-  const devName = "Dev User";
-  const tokenIdentifier = "dev-user-001";
-
-  let user = await db.query.users.findFirst({
-    where: eq(users.tokenIdentifier, tokenIdentifier),
-  });
-
-  if (!user) {
-    const [newUser] = await db
-      .insert(users)
-      .values({
-        tokenIdentifier,
-        name: devName,
-        email: devEmail,
-        plan: "pro",
-        monthlyUsage: 0,
-        role: "admin",
-        onboarded: true,
-      })
-      .returning();
-    user = newUser;
-
-    await db.insert(notifications).values({
-      userId: user.id,
-      title: "Welcome to NITAI AI (Dev Mode)!",
-      message: "You are logged in as a development user. All features are unlocked.",
-      type: "success",
-      read: false,
-    });
-  }
-
-  const jwt = await new SignJWT({ sub: tokenIdentifier, email: devEmail, name: devName })
-    .setProtectedHeader({ alg: "HS256" })
-    .setIssuedAt()
-    .setExpirationTime("7d")
-    .sign(new TextEncoder().encode(process.env.JWT_SECRET ?? "dev-secret-change-me"));
-
-  return c.json({ token: jwt, user: { email: devEmail, name: devName } });
 });
 
 export default app;

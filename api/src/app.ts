@@ -11,7 +11,11 @@ import adminRoutes from "./routes/admin";
 
 const app = new Hono();
 
-app.use("/*", cors());
+const allowedOrigins = process.env.NODE_ENV === "production"
+  ? ["https://nitai.netlify.app"]
+  : ["http://localhost:5173", "http://localhost:3000"];
+
+app.use("/*", cors({ origin: allowedOrigins, credentials: true }));
 
 app.route("/api/auth", authRoutes);
 app.route("/api/users", usersRoutes);
