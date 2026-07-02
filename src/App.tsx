@@ -14,6 +14,7 @@ import DashboardProfile from "@/pages/dashboard/profile/page";
 import DashboardTools from "@/pages/dashboard/tools/page";
 import ToolPage from "@/pages/dashboard/tools/[toolId]/page";
 import Index from "@/pages/Index";
+import Login from "@/pages/Login";
 import NotFound from "@/pages/NotFound";
 import SharedContentPage from "@/pages/shared/page";
 
@@ -45,6 +46,7 @@ export default function App() {
       <AuthContext.Provider value={authState}>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="/shared/:token" element={<SharedContentPage />} />
           <Route path="/dashboard" element={<DashboardLayout />}>

@@ -44,6 +44,15 @@ export const chatMessages = pgTable("chat_messages", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const verificationCodes = pgTable("verification_codes", {
+  id: serial("id").primaryKey(),
+  email: text("email").notNull(),
+  code: text("code").notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+  used: boolean("used").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const notifications = pgTable("notifications", {
   id: serial("id").primaryKey(),
   userId: integer("user_id")
