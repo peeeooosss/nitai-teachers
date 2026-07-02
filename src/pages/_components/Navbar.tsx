@@ -1,4 +1,4 @@
-import { LogIn, Mail, Menu, Sparkles, X } from "lucide-react";
+import { LogIn, Menu, Sparkles, X } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -49,20 +49,12 @@ export default function Navbar() {
               <Button>Dashboard</Button>
             </Link>
           ) : (
-            <div className="flex items-center gap-2">
-              <Link to="/login">
-                <Button variant="outline">
-                  <Mail className="h-4 w-4" />
-                  Email Login
-                </Button>
-              </Link>
-              <a href={googleSignInUrl()}>
-                <Button>
-                  <LogIn className="h-4 w-4" />
-                  Sign In
-                </Button>
-              </a>
-            </div>
+            <a href={googleSignInUrl()}>
+              <Button>
+                <LogIn className="h-4 w-4" />
+                Sign In
+              </Button>
+            </a>
           )}
         </div>
 
@@ -88,20 +80,12 @@ export default function Navbar() {
                 <Button className="w-full">Dashboard</Button>
               </Link>
             ) : (
-              <div className="flex flex-col gap-2">
-                <Link to="/login" className="w-full" onClick={() => setOpen(false)}>
-                  <Button variant="outline" className="w-full">
-                    <Mail className="h-4 w-4" />
-                    Email Login
-                  </Button>
-                </Link>
-                <a href={googleSignInUrl()} className="w-full" onClick={() => setOpen(false)}>
-                  <Button className="w-full">
-                    <LogIn className="h-4 w-4" />
-                    Sign In
-                  </Button>
-                </a>
-              </div>
+              <a href={googleSignInUrl()} className="w-full" onClick={() => setOpen(false)}>
+                <Button className="w-full">
+                  <LogIn className="h-4 w-4" />
+                  Sign In
+                </Button>
+              </a>
             )}
           </div>
         </div>

@@ -1,4 +1,4 @@
-import { ArrowRight, Mail, Sparkles } from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { useAuthState } from "@/lib/auth";
@@ -50,18 +50,12 @@ export default function Hero() {
               </Button>
             </Link>
           ) : (
-            <div className="flex flex-col items-center gap-3">
-              <a href={googleSignInUrl()}>
-                <Button size="lg" className="gap-2">
-                  Get Started Free
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </a>
-              <Link to="/login" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
-                <Mail className="h-4 w-4" />
-                Sign in with email instead
-              </Link>
-            </div>
+            <a href={googleSignInUrl()}>
+              <Button size="lg" className="gap-2">
+                Get Started Free
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </a>
           )}
         </div>
 
