@@ -11,7 +11,7 @@ export const handler = async (
       : new Request(
           new URL(
             event.path,
-            `https://${event.headers?.host ?? "nitaiaiteachersautomation.netlify.app"}`,
+            `https://${event.headers?.host ?? "nitaiteachersautomation.nitaigroup.com"}`,
           ),
           {
             method: event.httpMethod ?? "GET",

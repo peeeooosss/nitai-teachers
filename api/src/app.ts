@@ -12,7 +12,7 @@ import adminRoutes from "./routes/admin";
 const app = new Hono();
 
 const allowedOrigins = process.env.NODE_ENV === "production"
-  ? ["https://nitai.netlify.app"]
+  ? ["https://nitaiteachersautomation.nitaigroup.com"]
   : ["http://localhost:5173", "http://localhost:3000"];
 
 app.use("/*", cors({ origin: allowedOrigins, credentials: true }));
